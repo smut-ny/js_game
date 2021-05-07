@@ -1,5 +1,3 @@
-
-
 // Canvas setting
 const canvas = document.getElementById('game_window')
 const ctx = canvas.getContext('2d')
@@ -10,10 +8,11 @@ const canvasHeight = 500
 const canvasWidthInit = canvas.width = canvasWidth
 const canvasHeightInit = canvas.height = canvasHeight
 
-//game
+
+//Game loop setting
 
 let gameRuns = true
-let fps = 30
+let fps = 60
 
 
 //Color palette
@@ -21,14 +20,23 @@ const backgroundColor = "lightblue"
 const heroColor = "green"
 
 
-// Basic functions
+// Basic draw functions
 
 function drawRect(x, y, width, height, color){
     ctx.fillStyle = color;
     ctx.fillRect(x, y, width, height);
 }
 
-//Draw items
+function drawLine(sX, sY, eX, eY){
+    ctx.moveTo(sX,sY) 
+    ctx.lineTo(eX,eY)
+    ctx.stroke();
+}
+
+function drawImg(src, dx, dy, dWidth, dHeight){
+    ctx.drawImage(src, dx, dy, dWidth, dHeight)
+}
+//Draw items function
 
 var drawBackgroundGraphics = {
     background: function(){
@@ -36,7 +44,7 @@ var drawBackgroundGraphics = {
     }
 }
 
-//Basic movements
+//Movement & controller
 
 let moveY = 1
 let moveX = 1
@@ -78,18 +86,11 @@ function moveRight(){
     }
 }
 
-
-
-
-
 function shoot(){
     console.log(controller.fireDirection)
-    console.log(moveY)
-    console.log(moveX)
 }
 
-
-controller = {
+let controller = {
     up: false,
     down: false,
     left: false,
@@ -131,24 +132,21 @@ controller = {
         }
     },
     movement: (e) => {
-        if (controller.left){ moveLeft()}
-        if (controller.right){ moveRight()}
-        if (controller.up){ moveUp()}
-        if (controller.down){ moveDown()}
-        if (!controller.sprint){ normalSpeed() }
-        if (controller.sprint){ sprintBoost() }
-        if (controller.shoot) { shoot()}
-
+        if (controller.left){ moveLeft();}
+        if (controller.right){ moveRight();}
+        if (controller.up){ moveUp();}
+        if (controller.down){ moveDown();}
+        if (!controller.sprint){ normalSpeed();}
+        if (controller.sprint){ sprintBoost();}
+        if (controller.shoot) { shoot();}
     }
 }
  
 
-
 //Player
-
-var character = {
-    width: 20,
-    height: 20,
+let character = {
+    width: 30,
+    height: 30,
     posX: 0,
     posY: 0,
     color: heroColor,
@@ -157,17 +155,20 @@ var character = {
     }
 }
 
+
 //Collisions
-collisions = {  
+let collisions = {  
     borderMax: (canvasHeight - character.height) + 1,
     borderMin: 1,
 }
+
 
 //Draw all Graphics
 function drawAllGraphics(){
     drawBackgroundGraphics.background()
     character.draw()
 }
+
 
 //Main function (dynamic, fps)
 function gameDraw(){
@@ -179,7 +180,7 @@ function gameDraw(){
 }
 
 
-//Listeners
+//Event listeners
 window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
 
