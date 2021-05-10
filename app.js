@@ -1,3 +1,17 @@
+//@TODO
+/*
+[ ] Při střetnutí úkoly
+    + Random slovo ze seznamu, zamíchané a musí uhodnout
+    + Výpočet (časově omezený)
+[ ] Score
+[ ] Neprůchozí
+
+
+*/
+
+
+
+
 // Canvas setting
 const canvas = document.getElementById('game_window')
 const ctx = canvas.getContext('2d')
@@ -9,15 +23,21 @@ const canvasWidthInit = canvas.width = canvasWidth
 const canvasHeightInit = canvas.height = canvasHeight
 
 
+//Game setting
+let treesNum = 1
+let enemiesNum = 0
+
+let score = 100
+
 //Game loop setting
 
 let gameRuns = true
-let fps = 60
-
+let fps = 20
 
 //Color palette
 const backgroundColor = "lightblue"
 const heroColor = "green"
+const enemyColor = "pink"
 
 
 // Basic draw functions
@@ -36,6 +56,7 @@ function drawLine(sX, sY, eX, eY){
 function drawImg(src, dx, dy, dWidth, dHeight){
     ctx.drawImage(src, dx, dy, dWidth, dHeight)
 }
+
 //Draw items function
 
 var drawBackgroundGraphics = {
@@ -43,6 +64,11 @@ var drawBackgroundGraphics = {
         drawRect(0, 0, canvasWidth, canvasHeight, backgroundColor)
     }
 }
+
+//Other functions
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+  }
 
 //Movement & controller
 
@@ -62,32 +88,32 @@ function sprintBoost(){
 }
 
 function moveUp() {
-    if (moveY > collisions.borderMin){
+    if (moveY > wallCollision.borderMin){
         moveY = (moveY - moveSpeed) - sprint
     }
 }
 
 function moveDown(){
-    if (moveY < collisions.borderMax){
+    if (moveY < wallCollision.borderMax){
         moveY = (moveY + moveSpeed) + sprint
     }
 }
 
 function moveLeft(){
-    if (moveX > collisions.borderMin){
+    if (moveX > wallCollision.borderMin){
         moveX = (moveX - moveSpeed) - sprint
     }
 }
 
 function moveRight(){
-    if (moveX < collisions.borderMax){
+    if (moveX < wallCollision.borderMax){
         moveX = (moveX + moveSpeed) + sprint
 
     }
 }
 
 function shoot(){
-    console.log(controller.fireDirection)
+    console.log(moveX, moveY)
 }
 
 let controller = {
@@ -147,28 +173,128 @@ let controller = {
 let character = {
     width: 30,
     height: 30,
-    posX: 0,
-    posY: 0,
+    startPosX: 0,
+    startPosY: 0,
     color: heroColor,
     draw: function(){
-        drawRect(this.posX + moveX, this.posY + moveY, this.width, this.height, this.color)
+        drawRect(this.startPosX + moveX, this.startPosY + moveY, this.width, this.height, this.color)
+    },
+    posX: function(){
+        let posX = moveX
+        return posX
+    },
+    posY: function() {
+        let posY = moveY
+        return posY
     }
 }
 
+//Enemy
+class enemy {
+    constructor(x, y){
+        this.width = 20;
+        this.height = 20;
+        this.posX = x;
+        this.posY = y;
+        this.color = enemyColor;
+    }
+
+    draw() {
+        drawRect(this.posX, this.posY, this.width, this.height, this.color)
+    }
+
+
+    fight(){
+        let hitBox = this.width + 10  
+        const formula = (character.posX() < this.posX + hitBox && character.posX() > this.posX - hitBox) && (character.posY() < this.posY + hitBox && character.posY() > this.posY - hitBox)
+    
+        if (formula){
+            console.log("ENEMY")
+        }
+    }
+}
+
+function createEnemies(number){
+    let enemies = [];
+
+    for (let i = 0; i < number; i++){
+        enemies[i] = new enemy(getRndInteger(10, 450), getRndInteger(10, 450));
+    }
+
+    return enemies;
+}
+
+let enemies = [];
+enemies = createEnemies(enemiesNum)
+
 
 //Collisions
-let collisions = {  
+let wallCollision = {  
     borderMax: (canvasHeight - character.height) + 1,
     borderMin: 1,
 }
 
+class spaceCollisions  {
+    constructor(x, y){
+        this.width = 20;
+        this.height = 20;
+        this.posX = x;
+        this.posY = y;
+        this.color = "purple";
+
+        this.left = this.posX - character.width
+        this.right = this.posX + this.width
+        this.top = this.posY - character.height
+        this.bot = this.posY + this.height
+    }
+
+    draw() {
+        drawRect(this.posX, this.posY, this.width, this.height, this.color)
+    }
+}
+
+
+function createSpaceCollisions(number){
+    let collisions = [];
+
+    for (let i = 0; i < number; i++){
+        collisions[i] = new spaceCollisions(getRndInteger(10, 450), getRndInteger(10, 450));
+    }
+
+    return collisions;
+}
+
+let trees = [];
+trees = createSpaceCollisions(treesNum)
+
+let treesTop = []
+let treesBot = []
+let treesLeft = []
+let treesRight = []
+
+for(i in trees){
+    treesTop.push(trees[i].top)
+    treesBot.push(trees[i].bot)
+    treesLeft.push(trees[i].left)
+    treesRight.push(trees[i].right)
+}
 
 //Draw all Graphics
 function drawAllGraphics(){
     drawBackgroundGraphics.background()
     character.draw()
-}
 
+    //Draw Enemies
+    for (let i = 0; i < enemies.length; i++){
+        enemies[i].draw()
+        enemies[i].fight()
+    }
+    
+    //Draw Trees
+    for (let i = 0; i < trees.length; i++){
+        trees[i].draw()
+    }
+}
 
 //Main function (dynamic, fps)
 function gameDraw(){
