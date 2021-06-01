@@ -34,7 +34,8 @@ let fps = 20;
 const colors = {
     backgroundColor: "lightblue",
     heroColor: "green",
-    enemyColor: "pink"
+    enemyColor: "pink",
+    collisionColor: "purple"
 }
 
 
@@ -69,49 +70,58 @@ function getRndInteger(min, max) {
 }
 
 //Movement & controller
-
-let moveY = 1;
-let moveX = 1;
-
-let moveSpeed = 5;
-let sprint = 0; //default state
-let sprintSpeed = 2.5;
-
-function normalSpeed() {
-  sprint = 0;
+let movement = {
+  moveY: 1,
+  moveX: 1,
+  moveSpeed: 5,
+  sprint: 0,
+  sprintSpeed: 2.5,
+  normalSpeed: () => { movement.sprint = 0; },
+  sprintBoost: () => { movement.sprint = movement.sprintSpeed; },
+  moveUp: () => { if (movement.moveY > wallCollision.borderMin) movement.moveY = movement.moveY - movement.moveSpeed - movement.sprint; },
+  moveDown: () => { if (movement.moveY < wallCollision.borderMax) movement.moveY = movement.moveY + movement.moveSpeed + movement.sprint; },
+  moveLeft: () => { if (movement.moveX > wallCollision.borderMin) movement.moveX = movement.moveX - movement.moveSpeed - movement.sprint; },
+  moveRight: () => { if (movement.moveX < wallCollision.borderMax) movement.moveX = movement.moveX + movement.moveSpeed + movement.sprint; }
 }
 
-function sprintBoost() {
-  sprint = sprintSpeed;
-}
+// let moveY = 1;
+// let moveX = 1;
 
-function moveUp() {
-  if (moveY > wallCollision.borderMin) {
-    moveY = moveY - moveSpeed - sprint;
-  }
-}
+// let moveSpeed = 5;
+// let sprint = 0; //default state
+// let sprintSpeed = 2.5;
 
-function moveDown() {
-  if (moveY < wallCollision.borderMax) {
-    moveY = moveY + moveSpeed + sprint;
-  }
-}
+// function normalSpeed() {
+//   sprint = 0;
+// }
 
-function moveLeft() {
-  if (moveX > wallCollision.borderMin) {
-    moveX = moveX - moveSpeed - sprint;
-  }
-}
+// function sprintBoost() {
+//   sprint = sprintSpeed;
+// }
 
-function moveRight() {
-  if (moveX < wallCollision.borderMax) {
-    moveX = moveX + moveSpeed + sprint;
-  }
-}
+// function moveUp() {
+//   if (moveY > wallCollision.borderMin) {
+//     moveY = moveY - moveSpeed - sprint;
+//   }
+// }
 
-function shoot() {
-  console.log(moveX, moveY);
-}
+// function moveDown() {
+//   if (moveY < wallCollision.borderMax) {
+//     moveY = moveY + moveSpeed + sprint;
+//   }
+// }
+
+// function moveLeft() {
+//   if (moveX > wallCollision.borderMin) {
+//     moveX = moveX - moveSpeed - sprint;
+//   }
+// }
+
+// function moveRight() {
+//   if (moveX < wallCollision.borderMax) {
+//     moveX = moveX + moveSpeed + sprint;
+//   }
+// }
 
 let controller = {
   up: false,
@@ -155,25 +165,22 @@ let controller = {
   },
   movement: (e) => {
     if (controller.left) {
-      moveLeft();
+      movement.moveLeft();
     }
     if (controller.right) {
-      moveRight();
+      movement.moveRight();
     }
     if (controller.up) {
-      moveUp();
+      movement.moveUp();
     }
     if (controller.down) {
-      moveDown();
+      movement.moveDown();
     }
     if (!controller.sprint) {
-      normalSpeed();
+      movement.normalSpeed();
     }
     if (controller.sprint) {
-      sprintBoost();
-    }
-    if (controller.shoot) {
-      shoot();
+      movement.sprintBoost();
     }
   },
 };
@@ -187,19 +194,19 @@ let character = {
   color: colors.heroColor,
   draw: function () {
     drawRect(
-      this.startPosX + moveX,
-      this.startPosY + moveY,
+      this.startPosX + movement.moveX,
+      this.startPosY + movement.moveY,
       this.width,
       this.height,
       this.color
     );
   },
   posX: function () {
-    let posX = moveX;
+    let posX = movement.moveX;
     return posX;
   },
   posY: function () {
-    let posY = moveY;
+    let posY = movement.moveY;
     return posY;
   },
 };
@@ -257,7 +264,7 @@ class spaceCollisions {
     this.height = 20;
     this.posX = x;
     this.posY = y;
-    this.color = "purple";
+    this.color = colors.collisionColor;
 
     this.left = this.posX - character.width;
     this.right = this.posX + this.width;
