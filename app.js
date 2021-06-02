@@ -10,6 +10,7 @@
 */
 
 // Canvas setting
+
 const canvas = document.getElementById("game_window");
 const ctx = canvas.getContext("2d");
 
@@ -19,13 +20,13 @@ const canvasHeight = 500;
 const canvasWidthInit = (canvas.width = canvasWidth);
 const canvasHeightInit = (canvas.height = canvasHeight);
 
-//Game setting
+//Game settings
 let treesNum = 1;
 let enemiesNum = 0;
 
 let score = 100;
 
-//Game loop setting
+//Game loop settings
 
 let gameRuns = true;
 let fps = 20;
@@ -41,26 +42,26 @@ const colors = {
 
 // Basic draw functions
 
-function drawRect(x, y, width, height, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, width, height);
-}
+let drawGraphics = {
+  drawRect: (x, y, width, height, color) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height); },
 
-function drawLine(sX, sY, eX, eY) {
-  ctx.moveTo(sX, sY);
-  ctx.lineTo(eX, eY);
-  ctx.stroke();
-}
+  drawLine: (sX, sY, eX, eY) => {
+    ctx.moveTo(sX, sY);
+    ctx.lineTo(eX, eY);
+    ctx.stroke(); },
 
-function drawImg(src, dx, dy, dWidth, dHeight) {
-  ctx.drawImage(src, dx, dy, dWidth, dHeight);
+  drawImg: (src, dx, dy, dWidth, dHeight) => {
+    ctx.drawImage(src, dx, dy, dWidth, dHeight);
+  }
 }
 
 //Draw items function
 
-var drawBackgroundGraphics = {
+let drawBackgroundGraphics = {
   background: function () {
-    drawRect(0, 0, canvasWidth, canvasHeight, colors.backgroundColor);
+    drawGraphics.drawRect(0, 0, canvasWidth, canvasHeight, colors.backgroundColor);
   },
 };
 
@@ -83,45 +84,6 @@ let movement = {
   moveLeft: () => { if (movement.moveX > wallCollision.borderMin) movement.moveX = movement.moveX - movement.moveSpeed - movement.sprint; },
   moveRight: () => { if (movement.moveX < wallCollision.borderMax) movement.moveX = movement.moveX + movement.moveSpeed + movement.sprint; }
 }
-
-// let moveY = 1;
-// let moveX = 1;
-
-// let moveSpeed = 5;
-// let sprint = 0; //default state
-// let sprintSpeed = 2.5;
-
-// function normalSpeed() {
-//   sprint = 0;
-// }
-
-// function sprintBoost() {
-//   sprint = sprintSpeed;
-// }
-
-// function moveUp() {
-//   if (moveY > wallCollision.borderMin) {
-//     moveY = moveY - moveSpeed - sprint;
-//   }
-// }
-
-// function moveDown() {
-//   if (moveY < wallCollision.borderMax) {
-//     moveY = moveY + moveSpeed + sprint;
-//   }
-// }
-
-// function moveLeft() {
-//   if (moveX > wallCollision.borderMin) {
-//     moveX = moveX - moveSpeed - sprint;
-//   }
-// }
-
-// function moveRight() {
-//   if (moveX < wallCollision.borderMax) {
-//     moveX = moveX + moveSpeed + sprint;
-//   }
-// }
 
 let controller = {
   up: false,
@@ -192,8 +154,9 @@ let character = {
   startPosX: 0,
   startPosY: 0,
   color: colors.heroColor,
+
   draw: function () {
-    drawRect(
+    drawGraphics.drawRect(
       this.startPosX + movement.moveX,
       this.startPosY + movement.moveY,
       this.width,
@@ -201,14 +164,17 @@ let character = {
       this.color
     );
   },
+
   posX: function () {
     let posX = movement.moveX;
     return posX;
   },
+
   posY: function () {
     let posY = movement.moveY;
     return posY;
   },
+
 };
 
 //Enemy
@@ -222,7 +188,7 @@ class enemy {
   }
 
   draw() {
-    drawRect(this.posX, this.posY, this.width, this.height, this.color);
+    drawGraphics.drawRect(this.posX, this.posY, this.width, this.height, this.color);
   }
 
   fight() {
@@ -273,7 +239,7 @@ class spaceCollisions {
   }
 
   draw() {
-    drawRect(this.posX, this.posY, this.width, this.height, this.color);
+    drawGraphics.drawRect(this.posX, this.posY, this.width, this.height, this.color);
   }
 }
 
