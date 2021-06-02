@@ -21,8 +21,8 @@ const canvasWidthInit = (canvas.width = canvasWidth);
 const canvasHeightInit = (canvas.height = canvasHeight);
 
 //Game settings
-let treesNum = 1;
-let enemiesNum = 0;
+let treesNum = 3;
+let enemiesNum = 5;
 
 let score = 100;
 
@@ -43,6 +43,7 @@ const colors = {
 // Basic draw functions
 
 let drawGraphics = {
+
   drawRect: (x, y, width, height, color) => {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, width, height); },
@@ -55,14 +56,17 @@ let drawGraphics = {
   drawImg: (src, dx, dy, dWidth, dHeight) => {
     ctx.drawImage(src, dx, dy, dWidth, dHeight);
   }
+
 }
 
 //Draw items function
 
 let drawBackgroundGraphics = {
+
   background: function () {
     drawGraphics.drawRect(0, 0, canvasWidth, canvasHeight, colors.backgroundColor);
-  },
+  }
+
 };
 
 //Other functions
@@ -77,6 +81,7 @@ let movement = {
   moveSpeed: 5,
   sprint: 0,
   sprintSpeed: 2.5,
+
   normalSpeed: () => { movement.sprint = 0; },
   sprintBoost: () => { movement.sprint = movement.sprintSpeed; },
   moveUp: () => { if (movement.moveY > wallCollision.borderMin) movement.moveY = movement.moveY - movement.moveSpeed - movement.sprint; },
@@ -93,6 +98,7 @@ let controller = {
   sprint: false,
   shoot: false,
   fireDirection: 1,
+
   keyListener: (e) => {
     var key_state = event.type == "keydown" ? true : false;
 
@@ -125,6 +131,7 @@ let controller = {
         controller.sprint = key_state;
     }
   },
+
   movement: (e) => {
     if (controller.left) {
       movement.moveLeft();
@@ -145,6 +152,7 @@ let controller = {
       movement.sprintBoost();
     }
   },
+
 };
 
 //Player
@@ -224,6 +232,7 @@ let wallCollision = {
   borderMin: 1,
 };
 
+
 class spaceCollisions {
   constructor(x, y) {
     this.width = 20;
@@ -291,9 +300,12 @@ function drawAllGraphics() {
 //Main function (dynamic, fps)
 function gameDraw() {
   if (gameRuns) {
+
     drawAllGraphics();
     controller.movement();
-    setTimeout(gameDraw, 1000 / fps);
+    requestAnimationFrame(gameDraw)
+    // setTimeout(gameDraw, 1000 / fps);
+
   }
 }
 
